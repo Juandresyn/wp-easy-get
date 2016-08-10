@@ -1,3 +1,4 @@
+<?php
 function define_id($postid){
   // Check if the $postid is defined or empty
   if ($postid != null && $postid != ""){
@@ -12,7 +13,7 @@ function get_thumbs($size, $postid){
   // Check the ID
   $the_id = define_id($postid);
   // Posible sizes
-  $sizes = [thumbnail, medium, large, full];
+  $sizes = ['thumbnail', 'medium', 'large', 'full'];
   // Using a default image in case image not exist
   $default_img_id = 10;
   // Check that the size provided is one of the default ones
@@ -40,6 +41,25 @@ function thumbs($size, $postid){
   echo get_thumbs($size, define_id($postid));
 }
 
+//shotcode for thumbs
+// Add Shortcode
+function thumbs_shortcode( $atts ) {
+  // Attributes
+  $atts = shortcode_atts(
+    array(
+      'id' => '',
+      'size' => 'thumbnail',
+      'class' => '',
+      'alt' => '',
+    ),
+    $atts
+  );
+  $the_id = define_id($id);
+  $img = get_thumbs($size, $the_id);
+  return "<img src='$img' alt='$alt' class=''$class'>";
+}
+add_shortcode( 'thumbs', 'thumbs_shortcode' );
+
 function get_field($field, $postid){
   $the_id = define_id($postid);
   $key = get_post_meta( $the_id, $field, true);
@@ -51,3 +71,20 @@ function get_field($field, $postid){
 function field($field, $postid){
   echo get_field($field, $postid);
 }
+
+// NOT WORKING RIGHT NOW
+function field_shortcode( $atts ) {
+  // Attributes
+  $atts = shortcode_atts(
+    array(
+      'id' => '',
+      'key' => '',
+    ),
+    $atts
+  );
+  $the_id = define_id($id);
+  $the_field = field($key, $the_id);
+  return $the_field;
+}
+add_shortcode( 'field', 'field_shortcode' );
+?>
