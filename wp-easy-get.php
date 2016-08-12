@@ -114,4 +114,30 @@ function category_shortcode($atts) {
 }
 add_shortcode( 'category', 'category_shortcode' );
 
+function got_post_tags($id, $link = false){
+  $the_id = define_id($id);
+  $posttags = get_the_tags($the_id);
+  if ($posttags) {
+    foreach($posttags as $tag) {
+      $tg .= $tag->name . ', ';
+    }
+  }
+  return $tg;
+}
+
+function post_tags($id){
+  echo got_post_tags($id);
+}
+
+function tags_shortcode($atts) {
+  // Attributes
+  extract(shortcode_atts(
+    array(
+      'id' => ''
+    ), $atts));
+  $value = got_post_tags($id);
+  return $value;
+}
+add_shortcode( 'tags', 'tags_shortcode' );
+
 ?>
