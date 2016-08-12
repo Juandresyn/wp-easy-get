@@ -8,12 +8,11 @@ function define_id($postid){
     return get_the_ID();
   }
 }
-
 function get_thumbs($size, $postid){
   // Check the ID
   $the_id = define_id($postid);
   // Posible sizes
-  $sizes = ['thumbnail', 'medium', 'large', 'full'];
+  $sizes = array('thumbnail', 'medium', 'large', 'full');
   // Using a default image in case image not exist
   $default_img_id = 10;
   // Check that the size provided is one of the default ones
@@ -45,25 +44,22 @@ function thumbs($size, $postid){
 // Add Shortcode
 function thumbs_shortcode( $atts ) {
   // Attributes
-  $atts = shortcode_atts(
+  extract( shortcode_atts(
     array(
-      'id' => '',
+      'id' => '2',
       'size' => 'thumbnail',
-      'class' => '',
-      'alt' => '',
-    ),
-    $atts
-  );
-  $the_id = define_id($id);
-  $img = get_thumbs($size, $the_id);
-  return "<img src='$img' alt='$alt' class=''$class'>";
+      'class' => 'image',
+      'alt' => 'image'
+    ), $atts));
+  $img = get_thumbs($size, $id);
+  return "<img src='$img' alt='$alt' class='$class' data-id='$id'>";
 }
 add_shortcode( 'thumbs', 'thumbs_shortcode' );
 
 function get_field($field, $postid){
   $the_id = define_id($postid);
   $key = get_post_meta( $the_id, $field, true);
-  if (!empty( $key)) {
+  if (!empty($key)) {
     return $key;
   }
 }
@@ -72,19 +68,50 @@ function field($field, $postid){
   echo get_field($field, $postid);
 }
 
-// NOT WORKING RIGHT NOW
-function field_shortcode( $atts ){
+function field_shortcode( $atts ) {
   // Attributes
-  $atts = shortcode_atts(
+  extract( shortcode_atts(
     array(
       'id' => '',
-      'key' => '',
-    ),
-    $atts
-  );
-  $the_id = define_id($id);
-  $the_field = field($key, $the_id);
-  return $the_field;
+      'key' => ''
+    ), $atts));
+  $value = get_field($key, $id);
+  return $value;
 }
-add_shortcode( 'field', 'field_shortcode' );
+add_shortcode( 'custom_field', 'field_shortcode' );
+
+function got_post_category($id, $q = false, $wrapper_start = "", $wrapper_end = ""){
+  $the_id = define_id($id);
+  $value = get_the_category($the_id);
+  if ($q != null && $q != "" && $q == true){
+    $posttags = get_the_tags();
+    if ($value) {
+      foreach($value as $cat) {
+        $cats .= htmlentities("$wrapper_start $cat->name $wrapper_end", ENT_QUOTES | ENT_IGNORE, "UTF-8");
+      }
+    }
+    return html_entity_decode($cats);
+  }else{
+    return esc_html($value[0]->name);
+  }
+}
+
+function post_category($id, $q, $wrapper_start, $wrapper_end){
+  echo got_post_category($id, $q, $wrapper_start, $wrapper_end);
+}
+
+function category_shortcode($atts) {
+  // Attributes
+  extract(shortcode_atts(
+    array(
+      'id' => '',
+      'q' => false,
+      'wrapper_start' => '',
+      'wrapper_end' => ''
+    ), $atts));
+  $value = got_post_category($id, $q, $wrapper_start, $wrapper_end);
+  return $value;
+}
+add_shortcode( 'category', 'category_shortcode' );
+
 ?>
